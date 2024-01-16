@@ -68,6 +68,7 @@ const gitCommits = async () => {
         router.push('/commits')
     }
 }
+
 </script>
 
 <template>
@@ -191,7 +192,7 @@ label {
 }
 
 .form-submit-button:hover {
-    border-color: rgb(253, 81, 1);
+    border-color: #fff;
     color: #fff;
 }
 </style>

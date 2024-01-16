@@ -28,6 +28,7 @@
         border-radius: 6px;
         cursor: pointer;
         color: grey;
+        margin-bottom: 20px;
     }
 
     .home-button:hover {
