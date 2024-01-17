@@ -3,12 +3,14 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useApiStore } from '../store/pinia';
+import Loading from './Loading.vue';
 
 const router = useRouter();
 
 const authorError = ref(false);
 const projectIdError = ref(false);
 const completeFormError = ref(false);
+const loading = ref(false);
 
 const formValues = ref({
     secret: '',
@@ -51,6 +53,7 @@ const gitCommits = async () => {
     if (isAnyValueEmpty(formValues)) {
         completeFormError.value = true
     } else {
+        loading.value = true;
         try {
             const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
             let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
@@ -61,7 +64,7 @@ const gitCommits = async () => {
             });
 
             useApiStore().setApiResponseData(response.data);
-
+            loading.value = false;
         } catch (error) {
             useApiStore().setApiResponseData([]);
         }
@@ -99,6 +102,9 @@ const gitCommits = async () => {
             </div>
         </form>
         <button @click="gitCommits" class="form-submit-button">Get commit messages</button>
+    </div>
+    <div v-if="loading">
+        <Loading/>
     </div>
 </template>
 
@@ -167,6 +173,7 @@ label {
 }
 
 .input-form {
+    margin-top: 120px;
     width: 400px;
 }
 

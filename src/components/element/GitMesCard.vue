@@ -57,7 +57,7 @@ const home = () => {
 
 <template>
     <div class="table-container">
-        <div v-if="!emptyCommitMessage">
+        <div v-if="!emptyCommitMessage" class="card-header-text">
             <p class="table-text">Commit Messages ...</p>
             <div class="commit-message-container">
 
@@ -85,6 +85,10 @@ const home = () => {
 p {
     margin: 0;
     padding: 0;
+}
+
+.card-header-text {
+    margin-top: 120px;
 }
 
 .table-container {
