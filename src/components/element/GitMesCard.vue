@@ -53,6 +53,14 @@ const copyText = (index) => {
 const home = () => {
     router.push('/');
 }
+
+const formatDate = (dateString) => {
+    const dateObject = new Date(dateString);
+    const day = dateObject.getDate().toString().padStart(2, '0');
+    const month = (dateObject.getMonth() + 1).toString().padStart(2, '0');
+    const year = dateObject.getFullYear();
+    return `${day}-${month}-${year}`;
+}
 </script>
 
 <template>
@@ -63,8 +71,13 @@ const home = () => {
 
                 <div v-for="(group, groupIndex) in groupedResponse" :id="groupIndex" :key="groupIndex"
                     ref="copyTextContainer" class="commit-message">
-                    <p v-for="(response, responseIndex) in group" :key="responseIndex" class="message">{{ response.message
-                    }}</p>
+
+                    <div v-for="(response, responseIndex) in group" :key="responseIndex" class="message-container">
+                        <p class="message">{{ response.message
+                        }}</p>
+                        <h6 class="commit-date">{{ formatDate(response.committed_date) }} &#8594;</h6>
+                    </div>
+
                     <button @click="copyText(groupIndex)" :id="'button-' + groupIndex" class="copy-button">
                         {{ copyValue }}</button>
                 </div>
@@ -89,6 +102,19 @@ p {
 
 .card-header-text {
     margin-top: 120px;
+}
+
+.message-container {
+    position: relative;
+}
+
+.commit-date {
+    position: absolute;
+    top: 4px;
+    left: 15px;
+    font-family: OutFit;
+    font-size: 9px;
+    color: rgba(0, 255, 140, 0.708);
 }
 
 .table-container {
@@ -122,9 +148,9 @@ p {
 
 
 .message {
-    padding: 2px 30px;
+    padding: 2px 90px;
     font-size: 12px;
-    max-width: 350px;
+    max-width: 400px;
 }
 
 .copy-button {
