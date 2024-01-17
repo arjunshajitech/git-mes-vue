@@ -116,6 +116,11 @@ label {
     position: relative;
 }
 
+::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  background-image: url(http://icons.iconarchive.com/icons/dakirby309/simply-styled/256/Calendar-icon.png);
+}
+
 .input-error-text {
     font-size: 13px;
     margin-bottom: 10px;
@@ -172,6 +177,7 @@ label {
     border-color: rgb(248, 105, 38);
     padding-left: 15px;
     border-radius: 6px;
+    padding-right: 10px;
 }
 
 .input-data:hover {
