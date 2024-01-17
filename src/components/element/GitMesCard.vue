@@ -85,7 +85,7 @@ const formatDate = (dateString) => {
             </div>
         </div>
         <div v-else>
-            <p class="table-text">No commit Messages found !</p>
+            <p class="table-text">Oops! No commit Messages found.</p>
         </div>
     </div>
 </template>
@@ -136,6 +136,7 @@ p {
 
 .table-text {
     text-align: center;
+    margin-top: 150px;
 }
 
 .commit-message {

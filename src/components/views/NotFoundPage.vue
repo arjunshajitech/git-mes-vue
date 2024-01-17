@@ -1,13 +1,10 @@
 <script setup>
-    import GitMesHeader from '../element/GitMesHeader.vue';
-    import NotFound from '../element/NotFound.vue';
-    import BackButton from '../element/BackButton.vue';
+import GitMesHeader from '../element/GitMesHeader.vue';
+import NotFound from '../element/NotFound.vue';
+import BackButton from '../element/BackButton.vue';
 </script>
 
 <template>
-    <div>
-        <GitMesHeader/>
-        <NotFound/>
-        <BackButton/>
-    </div>
+    <NotFound />
+    <BackButton />
 </template>

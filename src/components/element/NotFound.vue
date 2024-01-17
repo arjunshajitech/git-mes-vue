@@ -13,7 +13,7 @@ p {
     padding: 0;
     text-align: center;
     color: #fff;
-    margin-top: 100px;
+    margin-top: 200px;
     font-size: 40px;
 }
 
