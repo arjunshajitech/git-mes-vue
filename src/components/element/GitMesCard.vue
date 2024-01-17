@@ -5,9 +5,7 @@ import Clipboard from 'clipboard'
 import { useApiStore } from '../store/pinia';
 
 const router = useRouter();
-const copyTextContainer = ref('');
 const copyValue = ref('Copy commit');
-const textColor = ref('grey');
 const emptyCommitMessage = ref(false);
 const apiResponse = computed(() => useApiStore().getApiResponseData());
 const groupedResponse = [];
@@ -31,30 +29,24 @@ for (let index = 0; index < length; index += chunkSize) {
 }
 
 
-const copyText = () => {
-    copyValue.value = 'Copied!';
-    textColor.value = 'white';
+const copyText = (index) => {
+
+    const buttonElement = document.getElementById('button-' + index);
+    buttonElement.innerHTML = 'Copied!';
+    buttonElement.style.color = 'white';
+
     setTimeout(() => {
-        copyValue.value = 'Copy commit';
-        textColor.value = 'grey';
+        buttonElement.innerHTML = 'Copy commit';
+        buttonElement.style.color = 'grey';
     }, 2000);
 
-    const paragraphs = copyTextContainer.value.querySelectorAll('p');
+    const textContainer = document.getElementById(index);
+    const paragraphs = textContainer.querySelectorAll('p');
     const textToCopy = Array.from(paragraphs).map(p => p.textContent).join('\n');
-
     const clipboard = new Clipboard('button', {
         text: () => textToCopy
     });
-
     clipboard.onClick({ currentTarget: document.querySelector('button') });
-
-    // clipboard.on('success', () => {
-    // console.log('Text copied to clipboard!');
-    // });
-
-    // clipboard.on('error', () => {
-    // console.error('Failed to copy text to clipboard.');
-    // });
 
 }
 
@@ -69,11 +61,14 @@ const home = () => {
             <p class="table-text">Commit Messages ...</p>
             <div class="commit-message-container">
 
-                <div v-for="(group, groupIndex) in groupedResponse" :key="groupIndex" ref="copyTextContainer"
-                    class="commit-message">
-                    <p v-for="(response, responseIndex) in group" class="message">{{ response.message }}</p>
-                    <button @click="copyText" class="copy-button" :style="{ color: textColor }">{{ copyValue }}</button>
+                <div v-for="(group, groupIndex) in groupedResponse" :id="groupIndex" :key="groupIndex"
+                    ref="copyTextContainer" class="commit-message">
+                    <p v-for="(response, responseIndex) in group" :key="responseIndex" class="message">{{ response.message
+                    }}</p>
+                    <button @click="copyText(groupIndex)" :id="'button-' + groupIndex" class="copy-button">
+                        {{ copyValue }}</button>
                 </div>
+
             </div>
         </div>
         <div v-else>
@@ -116,10 +111,11 @@ p {
 .commit-message {
     position: relative;
     margin-bottom: 10px;
-    width: 450px;
+    width: 500px;
     border: 2px solid rgb(248, 105, 38);
     border-radius: 4px;
 }
+
 
 .message {
     padding: 2px 30px;
@@ -134,6 +130,7 @@ p {
     border: none;
     cursor: pointer;
     font-size: 12px;
+    color: grey;
 }
 
 .copy-button:hover {
