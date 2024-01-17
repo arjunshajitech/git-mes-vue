@@ -100,10 +100,6 @@ p {
     padding: 0;
 }
 
-.card-header-text {
-    margin-top: 120px;
-}
-
 .message-container {
     position: relative;
 }
@@ -136,7 +132,7 @@ p {
 
 .table-text {
     text-align: center;
-    margin-top: 150px;
+    margin-top: 120px;
 }
 
 .commit-message {
