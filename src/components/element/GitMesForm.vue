@@ -184,7 +184,7 @@ label {
 }
 
 .input-form {
-    margin-top: 120px;
+    margin-top: 130px;
     width: 400px;
 }
 

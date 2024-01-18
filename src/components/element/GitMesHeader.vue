@@ -43,8 +43,9 @@ const home = () => {
 
 .logo-icon {
     height: 40px;
-    margin-top: -12px;
+    margin-top: -11px;
     margin-right: 10px;
+    cursor: pointer;
 }
 
 .header-text {
@@ -64,6 +65,6 @@ const home = () => {
     width: 100%;
     height: 100px;
     z-index: 100;
-    padding-top: 20px;
+    padding-top: 40px;
 }
 </style>

@@ -1,4 +1,6 @@
 <script setup>
+    import GitMesHeader from '../element/GitMesHeader.vue';
+    import NotFound from '../element/NotFound.vue';
     import { useRouter } from 'vue-router';
     
     const router = useRouter();
@@ -9,15 +11,20 @@
 </script>
 
 <template>
+    <GitMesHeader/>
+    <NotFound/>
     <div class="back-button-container">
         <button @click="home" class="home-button">Back to home!</button>
     </div>
 </template>
 
-<style scoped>
+<style scoped> 
 
-    .back-button-container {
+.back-button-container {
         text-align: center;
+        position: absolute;
+        width: 100%;
+        margin-top: 300px;
     }
     
     .home-button {
