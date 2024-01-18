@@ -8,8 +8,16 @@ const home = () => {
 
 <template>
     <div class="header-container">
-        <p class="header-text">Git Mes (GM)</p>
-        <p class="header-mini-text">( Gitlab Commit Messages )</p>
+        <div class="gitmes-header">
+            <div class="gitmes-icon">
+                <img class="logo-icon" src="/favicon.png" alt="">
+            </div>
+            <div class="gitmes-text">
+                <p class="header-text">Git Mes (GM)</p>
+                <p class="header-mini-text">( Gitlab Commit Messages )</p>
+            </div>
+            
+        </div>
     </div>
 </template>
 
@@ -24,6 +32,19 @@ const home = () => {
     color: rgb(248, 105, 38);
     font-size: 12px;
     color: #fff;
+}
+
+.gitmes-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.logo-icon {
+    height: 40px;
+    margin-top: -12px;
+    margin-right: 10px;
 }
 
 .header-text {
