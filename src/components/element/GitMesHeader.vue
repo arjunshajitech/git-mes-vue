@@ -27,7 +27,6 @@ const home = () => {
 }
 
 .header-text {
-    padding-top: 20px;
     text-align: center;
     font-size: 40px;
     color: rgb(248, 105, 38);
@@ -39,8 +38,11 @@ const home = () => {
 }
 
 .header-container {
+    margin-top: -15px;
     position: fixed;
     width: 100%;
     height: 100px;
+    z-index: 100;
+    padding-top: 20px;
 }
 </style>
