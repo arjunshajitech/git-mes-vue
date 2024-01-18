@@ -21,6 +21,10 @@ const formValues = ref({
     until: ''
 });
 
+formValues.value.author = localStorage.getItem('gitLabAuthor') || '';
+formValues.value.branch = localStorage.getItem('gitLabBranch') || '';
+formValues.value.projectId = localStorage.getItem('gitLabProjectId') || '';
+
 function watchAndValidate(valueGetter, validationFn, errorRef) {
     watch(() => valueGetter(), () => {
         errorRef.value = !validationFn(valueGetter());
@@ -48,11 +52,18 @@ function isNumericString(str) {
     return /^[0-9]+$/.test(str);
 }
 
+const savetoLocalStorage = (key,value) => {
+        localStorage.setItem(key,value);
+    }
+
 const gitCommits = async () => {
 
     if (isAnyValueEmpty(formValues)) {
         completeFormError.value = true
     } else {
+        savetoLocalStorage('gitLabAuthor',formValues.value.author);
+        savetoLocalStorage('gitLabBranch',formValues.value.branch);
+        savetoLocalStorage('gitLabProjectId',formValues.value.projectId);
         loading.value = true;
         try {
             const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
