@@ -8,33 +8,36 @@ import 'vue3-toastify/dist/index.css';
 
 const router = useRouter();
 
-toast.info("commits !", {
-    autoClose: 2000,
-    theme: 'dark',
-    position: 'bottom-right'
-    
-});
-
 const apiResponse = computed(() => useApiStore().getApiResponseData());
 const groupedResponse = ref([]);
 const copyValue = ref('Copy commit');
-const emptyCommitMessage = ref(false);
+const emptyCommit = ref(false);
 let length = 0;
 
 const calculateSize = (length) => Math.ceil(length / 3);
 
-if (apiResponse.value != null) {
-    emptyCommitMessage.value = false;
-    length = apiResponse.value.length;
-    const size = calculateSize(length);
-
-    for (let index = 0; index < length; index += size) {
-        groupedResponse.value.push(apiResponse.value.slice(index, index + size));
-    }
+if (apiResponse.value == null || apiResponse.value.length === 0) {
+    emptyCommit.value = true;
+    toast.warning("no commits yet !", {
+        autoClose: 2000,
+        theme: 'dark',
+        position: 'bottom-right'
+    });
 } else {
-    emptyCommitMessage.value = true;
-    console.log("something went wrong!");
+    toast.info("commits !", {
+        autoClose: 2000,
+        theme: 'dark',
+        position: 'bottom-right'
+    });
 }
+
+length = apiResponse.value.length;
+const size = calculateSize(length);
+for (let index = 0; index < length; index += size) {
+    groupedResponse.value.push(apiResponse.value.slice(index, index + size));
+}
+
+
 
 const copyText = (index) => {
 
@@ -72,7 +75,7 @@ const formatDate = (dateString) => {
 
 <template>
     <div class="table-container">
-        <div v-if="!emptyCommitMessage" class="card-header-text">
+        <div v-if="!emptyCommit" class="card-header-text">
             <p class="table-text">Commit Messages ...</p>
             <div class="commit-message-container">
 
@@ -92,7 +95,7 @@ const formatDate = (dateString) => {
             </div>
         </div>
         <div v-else>
-            <p class="table-text">Oops! No commit Messages found.</p>
+            <p class="empty-commit-text">Oops! No commit Messages found.</p>
         </div>
     </div>
 </template>
@@ -137,7 +140,8 @@ p {
     width: 500px;
 }
 
-.table-text {
+.table-text,
+.empty-commit-text {
     text-align: center;
     margin-top: 120px;
 }

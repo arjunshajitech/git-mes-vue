@@ -343,7 +343,7 @@ const submitMainForm = async () => {
         <div v-if="timeLogDetails" class="time-logging-contaier">
             <input v-model="formValues.tlUsername" placeholder="TimeLogging username" class="input-data" type="text">
             <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="password">
-            <button @click="timelogSubmit" class="timelog-submit-button">Verify</button>
+            <button @click="timelogSubmit" class="timelog-submit-button">Login</button>
         </div>
 
         <div v-else class="input-form">
