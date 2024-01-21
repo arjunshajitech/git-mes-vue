@@ -1,10 +1,23 @@
-<!-- <script setup>
-import { useRouter } from 'vue-router';
-const router = useRouter();
-const home = () => {
-    router.push('/');
-}
-</script> -->
+<script setup>
+
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${day}-${month}-${year}`;
+};
+
+const getTodayWeekday = () => {
+    const today = new Date();
+    const options = { weekday: 'long' };
+    return today.toLocaleDateString('en-US', options);
+};
+
+const today = new Date();
+const todayDate = formatDate(today);
+const weekDay = getTodayWeekday();
+
+</script>
 
 <template>
     <div class="header-container">
@@ -14,9 +27,9 @@ const home = () => {
             </div>
             <div class="gitmes-text">
                 <p class="header-text">Git Mes (GM)</p>
-                <p class="header-mini-text">( Gitlab Commit Messages )</p>
+                <p class="header-mini-text">Welcome back ! on <span>{{ weekDay }}</span></p>
             </div>
-            
+
         </div>
     </div>
 </template>
@@ -27,10 +40,14 @@ const home = () => {
     padding: 0;
 }
 
+span {
+    color: rgb(253, 122, 61);
+}
+
 .header-mini-text {
     text-align: center;
     color: rgb(248, 105, 38);
-    font-size: 12px;
+    font-size: 13px;
     color: #fff;
 }
 
