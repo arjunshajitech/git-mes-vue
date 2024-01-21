@@ -8,7 +8,7 @@ import 'vue3-toastify/dist/index.css';
 
 const router = useRouter();
 
-toast.info("commits!", {
+toast.info("commits !", {
     autoClose: 2000,
     theme: 'dark',
 });

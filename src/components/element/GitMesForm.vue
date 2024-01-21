@@ -95,7 +95,7 @@ const timelogSubmit = () => {
 
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '') {
-        toast.warning("Please provide username and password!", {
+        toast.warning("Please provide username and password !", {
             autoClose: 2000,
             theme: 'dark',
         });
@@ -113,14 +113,14 @@ const timelogSubmit = () => {
                 progresBarWidth.value = 100;
                 loading.value = false;
                 projects.value = response.data;
-                toast.success("Login success!", {
+                toast.success("Login success !", {
                     autoClose: 2000,
                     theme: 'dark',
                 });
             })
             .catch(error => {
                 loading.value = false;
-                toast.error("Incorrect username or password!", {
+                toast.error("Incorrect username or password !", {
                     autoClose: 2000,
                     theme: 'dark',
                 });
@@ -133,7 +133,7 @@ const submitMainForm = async () => {
 
     if (formValues.value.secret === '' || formValues.value.author === '' || formValues.value.branch == '' ||
         formValues.value.projectId == '' || formValues.value.since == '') {
-        toast.warning("Please fill the fields!", {
+        toast.warning("Please fill the fields !", {
             autoClose: 2000,
             theme: 'dark',
         });
