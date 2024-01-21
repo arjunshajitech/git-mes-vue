@@ -1,11 +1,11 @@
 <script setup>
 import GitMesHeader from '../element/GitMesHeader.vue';
-import GitMesTable from '../element/GitMesCard.vue'
 import BackButton from '../element/BackButton.vue'
+import ShowCommits from '../element/ShowCommits.vue';
 </script>
 
 <template>
     <GitMesHeader/>
-    <GitMesTable/>
+    <ShowCommits/>
     <BackButton/>
 </template>

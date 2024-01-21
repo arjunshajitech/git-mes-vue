@@ -5,29 +5,27 @@ import Clipboard from 'clipboard'
 import { useApiStore } from '../store/pinia';
 
 const router = useRouter();
-const copyValue = ref('Copy commit');
-const emptyCommitMessage = ref(false);
+
 const apiResponse = computed(() => useApiStore().getApiResponseData());
 const groupedResponse = [];
+const copyValue = ref('Copy commit');
+const emptyCommitMessage = ref(false);
+let length = 0;
 
-if (apiResponse.value.length <= 0) {
-    emptyCommitMessage.value = true;
-}
+const calculateSize = (length) => Math.ceil(length / 3);
 
-let length = apiResponse.value.length;
-let chunkSize;
+//console.log(apiResponse.value);
+if (apiResponse.value != null) {
+    length = apiResponse.value.length;
+    const size = calculateSize(length);
 
-if (length < 9) {
-    chunkSize = 2;
-} else if (length < 15) {
-    chunkSize = 3;
+    for (let index = 0; index < length; index += size) {
+        groupedResponse.push(apiResponse.value.slice(index, index + size));
+    }
 } else {
-    chunkSize = 5;
+    emptyCommitMessage.value = true;
+    console.log("something went wrong!");
 }
-for (let index = 0; index < length; index += chunkSize) {
-    groupedResponse.push(apiResponse.value.slice(index, index + chunkSize));
-}
-
 
 const copyText = (index) => {
 
@@ -50,10 +48,6 @@ const copyText = (index) => {
 
 }
 
-const home = () => {
-    router.push('/');
-}
-
 const formatDate = (dateString) => {
     const dateObject = new Date(dateString);
     const day = dateObject.getDate().toString().padStart(2, '0');
@@ -61,7 +55,11 @@ const formatDate = (dateString) => {
     const year = dateObject.getFullYear();
     return `${day}-${month}-${year}`;
 }
+
+
+
 </script>
+
 
 <template>
     <div class="table-container">

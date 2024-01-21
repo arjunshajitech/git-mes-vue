@@ -15,6 +15,7 @@ const displayLoggingDate = ref(false);
 const timeLogDetails = ref(true);
 const progresBarWidth = ref(0);
 const tlLoginError = ref(false);
+const projects = ref([]);
 
 const formValues = ref({
     secret: '',
@@ -118,17 +119,17 @@ const gitCommits = async () => {
         });
 
         useApiStore().setApiResponseData(response.data);
-        loading.value = false;
     } catch (error) {
         useApiStore().setApiResponseData([]);
     }
-    router.push('/commits')
+    loading.value = false;
+    //router.push('/commits')
     //}
 
 }
 
 
-/* time log form */
+/* time log form submit */
 const timelogSubmit = () => {
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '') {
@@ -144,11 +145,11 @@ const timelogSubmit = () => {
         let url = "https://tl.techgentsia.com/api/projects";
         axios.get(url, { headers })
             .then(response => {
-                console.log(response.data);
                 tlLoginError.value = false;
                 timeLogDetails.value = false;
                 progresBarWidth.value = 100;
                 loading.value = false;
+                projects.value = response.data;
             })
             .catch(error => {
                 if (error.response.status === 403) {
@@ -157,6 +158,41 @@ const timelogSubmit = () => {
                 loading.value = false;
             });
     }
+}
+
+/* main form submittion */
+const submitMainForm = async () => {
+
+    loading.value = true;
+    formValues.value.until = generateNextDayDate(formValues.value.since)
+    savetoLocalStorage('gitLabAuthor', formValues.value.author);
+    savetoLocalStorage('gitLabBranch', formValues.value.branch);
+    savetoLocalStorage('gitLabProjectId', formValues.value.projectId);
+    savetoLocalStorage('tlUsername', formValues.value.tlUsername);
+    savetoLocalStorage('tlPassword', formValues.value.tlPassword);
+
+    if (!formValues.value.checked) {
+
+        const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
+        let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
+        const headers = {
+            'PRIVATE-TOKEN': formValues.value.secret
+        };
+
+        axios.get(queryUrl, { headers })
+            .then(response => {
+                //console.log(response.data);
+                useApiStore().setApiResponseData(response.data);
+            })
+            .catch(error => {
+                useApiStore().setApiResponseData([]);
+            });
+
+        loading.value = false;
+        router.push('/commits')
+
+    }
+
 }
 
 </script>
@@ -181,22 +217,21 @@ const timelogSubmit = () => {
                 <p class="input-error-text-complete">Invalid username or password!</p>
             </div>
             <input v-model="formValues.tlUsername" placeholder="TimeLogging username" class="input-data" type="text">
-            <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="text">
-            <button @click="timelogSubmit" class="timelog-submit-button">Get commit messages</button>
+            <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="password">
+            <button @click="timelogSubmit" class="timelog-submit-button">Verify</button>
         </div>
 
-        <form v-else class="input-form">
+        <div v-else class="input-form">
+
             <div v-if="completeFormError">
                 <p class="input-error-text-complete">Please fill the complete fields !</p>
             </div>
             <p v-if="projectIdError" class="input-error-text">Please provide a valid projectId !</p>
             <p v-if="authorError" class="input-error-text">Please provide a valid author name !</p>
+
+
             <div class="input-field-container">
-                <input v-model="formValues.tlUsername" placeholder="TimeLogging username" class="input-data" type="text">
-                <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="text">
-            </div>
-            <div class="input-field-container">
-                <input v-model="formValues.secret" placeholder="Gitlab Shared Secret" class="input-data" type="text">
+                <input v-model="formValues.secret" placeholder="Gitlab Shared Secret" class="input-data" type="password">
                 <input v-model="formValues.branch" placeholder="Project Branch Name" class="input-data" type="text">
             </div>
             <div class="input-field-container">
@@ -218,16 +253,15 @@ const timelogSubmit = () => {
                 <div class="select-project-container">
                     <label class="select-text" for="mySelect">Choose project :</label>
                     <select class="select-button" id="mySelect" name="mySelect">
-                        <option value="option1">Option 1</option>
-                        <option value="option2">Option 2</option>
-                        <option value="option3">Option 3</option>
+                        <option value="option1">Select</option>
+                        <option v-for="project in projects" :value="project.id">{{ project.name }}</option>
                     </select>
                 </div>
             </div>
             <div class="form-submit-container">
-                <button @click="gitCommits" class="form-submit-button">Get commit messages</button>
+                <button @click="submitMainForm" class="form-submit-button">Get commit messages</button>
             </div>
-        </form>
+        </div>
 
     </div>
     <div v-if="loading">
@@ -283,7 +317,7 @@ const timelogSubmit = () => {
 }
 
 .progress-data {
-    background-color:  rgb(248, 105, 38);
+    background-color: rgb(248, 105, 38);
     transition: 1.5s;
     height: 6px;
 }
