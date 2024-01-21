@@ -200,23 +200,15 @@ const submitMainForm = async () => {
                     position: 'bottom-right'
                 });
             } else {
-
                 const queryUrl = generateGetAllCommitsUrl();
                 const headers = {
                     'PRIVATE-TOKEN': formValues.value.secret
                 };
 
+                console.log(queryUrl);
                 await axios.get(queryUrl, { headers })
                     .then(response => {
                         //console.log(response.data);
-
-                        if (response.data === null) {
-                            toast.error("Something went wrong !", {
-                                autoClose: 2000,
-                                theme: 'dark',
-                                position: 'bottom-right'
-                            });
-                        }
 
                         length = response.data.length;
 
@@ -233,15 +225,6 @@ const submitMainForm = async () => {
                             groupedResponse.value.push(response.data.slice(index, index + size));
                         }
 
-                        let groupedResponseLength = groupedResponse.value.length;
-                        if (groupedResponseLength === 0) {
-                            toast.error("Something went wrong !", {
-                                autoClose: 2000,
-                                theme: 'dark',
-                                position: 'bottom-right'
-                            });
-                        }
-
                         const baseDate = formValues.value.logDate;
                         const date915AM = generateDateInIndia(baseDate, 9, 15);
                         const date1PM = generateDateInIndia(baseDate, 13, 0);
@@ -252,6 +235,7 @@ const submitMainForm = async () => {
                         let resultString1 = '';
                         let resultString2 = '';
                         let resultString3 = '';
+                        let groupedResponseLength = groupedResponse.value.length;
 
                         const headers = {
                             'X-AUTH-USER': formValues.value.tlUsername,
@@ -260,7 +244,7 @@ const submitMainForm = async () => {
 
                         let apiUrl = "https://tl.techgentsia.com/api/timesheets";
 
-                        if (groupedResponseLength >= 3) {
+                        if (groupedResponseLength === 3) {
 
                             for (let i = 0; i < groupedResponseLength; i++) {
                                 const innerArray = groupedResponse.value[i];
@@ -307,16 +291,110 @@ const submitMainForm = async () => {
 
                             router.push('/log')
                             loading.value = false;
+                        } else if (groupedResponseLength === 2) {
+
+                            for (let i = 0; i < groupedResponseLength; i++) {
+                                const innerArray = groupedResponse.value[i];
+                                const resultString = innerArray.map(obj => obj.title).join('\n');
+                                if (i === 0) {
+                                    resultString1 = resultString;
+                                } else if (i === 1) {
+                                    resultString2 = resultString;
+                                }
+                            }
+
+                            let body1 = {
+                                'begin': date915AM,
+                                'end': date1PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString1,
+                                'tags': ''
+                            }
+
+                            let body2 = {
+                                'begin': date130PM,
+                                'end': date4PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString2,
+                                'tags': ''
+                            }
+
+                            let body3 = {
+                                'begin': date4PM,
+                                'end': date630PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString2,
+                                'tags': ''
+                            }
+
+                            axios.post(apiUrl, body1, { headers });
+                            axios.post(apiUrl, body2, { headers });
+                            axios.post(apiUrl, body3, { headers });
+
+                            router.push('/log')
+                            loading.value = false;
+                        } else if (groupedResponseLength === 1) {
+                            for (let i = 0; i < groupedResponseLength; i++) {
+                                const innerArray = groupedResponse.value[i];
+                                const resultString = innerArray.map(obj => obj.title).join('\n');
+                                if (i === 0) {
+                                    resultString1 = resultString;
+                                }
+                            }
+
+                            let body1 = {
+                                'begin': date915AM,
+                                'end': date1PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString1,
+                                'tags': ''
+                            }
+
+                            let body2 = {
+                                'begin': date130PM,
+                                'end': date4PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString1,
+                                'tags': ''
+                            }
+
+                            let body3 = {
+                                'begin': date4PM,
+                                'end': date630PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString1,
+                                'tags': ''
+                            }
+
+                            axios.post(apiUrl, body1, { headers });
+                            axios.post(apiUrl, body2, { headers });
+                            axios.post(apiUrl, body3, { headers });
+
+                            router.push('/log')
+                            loading.value = false;
+                        } else {
+                            toast.error("Something went wrong !", {
+                                autoClose: 2000,
+                                theme: 'dark',
+                                position: 'bottom-right'
+                            });
                         }
 
 
                     })
                     .catch(error => {
-                        // toast.error("Something went wrong !", {
-                        //     autoClose: 2000,
-                        //     theme: 'dark',
-                        //     position: 'bottom-right'
-                        // });
+                        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3");
+                        toast.error("Something went wrong !", {
+                            autoClose: 2000,
+                            theme: 'dark',
+                            position: 'bottom-right'
+                        });
                     });
             }
 
