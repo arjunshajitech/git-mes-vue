@@ -29,6 +29,7 @@ const formValues = ref({
     since: '',
     until: '',
     logDate: '',
+    project: '',
     checked: false
 });
 
@@ -95,9 +96,10 @@ const timelogSubmit = () => {
 
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '') {
-        toast.warning("Please provide username and password !", {
+        toast.warning("Please fill the fields  !", {
             autoClose: 2000,
             theme: 'dark',
+            position: 'bottom-right'
         });
     } else {
         loading.value = true;
@@ -116,6 +118,7 @@ const timelogSubmit = () => {
                 toast.success("Login success !", {
                     autoClose: 2000,
                     theme: 'dark',
+                    position: 'bottom-right'
                 });
             })
             .catch(error => {
@@ -123,6 +126,7 @@ const timelogSubmit = () => {
                 toast.error("Incorrect username or password !", {
                     autoClose: 2000,
                     theme: 'dark',
+                    position: 'bottom-right'
                 });
             });
     }
@@ -136,9 +140,9 @@ const submitMainForm = async () => {
         toast.warning("Please fill the fields !", {
             autoClose: 2000,
             theme: 'dark',
+            position: 'bottom-right'
         });
     } else {
-        loading.value = true;
         formValues.value.until = await generateNextDayDate(formValues.value.since)
         savetoLocalStorage('gitLabAuthor', formValues.value.author);
         savetoLocalStorage('gitLabBranch', formValues.value.branch);
@@ -146,8 +150,8 @@ const submitMainForm = async () => {
         savetoLocalStorage('tlUsername', formValues.value.tlUsername);
         savetoLocalStorage('tlPassword', formValues.value.tlPassword);
 
-        if (!formValues.value.checked) {
-
+        if (formValues.value.checked === false) {
+            loading.value = true;
             const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
             let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
             const headers = {
@@ -164,6 +168,19 @@ const submitMainForm = async () => {
 
             loading.value = false;
             router.push('/commits')
+        } else {
+            loading.value = true;
+            if (formValues.value.logDate === '' || formValues.value.project == '') {
+                toast.warning("Please fill the fields !", {
+                    autoClose: 2000,
+                    theme: 'dark',
+                    position: 'bottom-right'
+                });
+            } else {
+                router.push('/log')
+            }
+
+            loading.value = false;
         }
     }
 
@@ -217,8 +234,8 @@ const submitMainForm = async () => {
 
                 <div class="select-project-container">
                     <label class="select-text" for="mySelect">Choose project :</label>
-                    <select class="select-button" id="mySelect" name="mySelect">
-                        <option value="option1">Select</option>
+                    <select v-model="formValues.project" class="select-button" id="mySelect" name="mySelect">
+                        <option value="">Select</option>
                         <option v-for="project in projects" :value="project.id">{{ project.name }}</option>
                     </select>
                 </div>

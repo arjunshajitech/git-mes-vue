@@ -11,6 +11,8 @@ const router = useRouter();
 toast.info("commits !", {
     autoClose: 2000,
     theme: 'dark',
+    position: 'bottom-right'
+    
 });
 
 const apiResponse = computed(() => useApiStore().getApiResponseData());
