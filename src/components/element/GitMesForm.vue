@@ -18,6 +18,10 @@ const displayLoggingDate = ref(false);
 const timeLogDetails = ref(true);
 const progresBarWidth = ref(0);
 const projects = ref([]);
+const groupedResponse = ref([]);
+let length = 0;
+
+const calculateSize = (length) => Math.ceil(length / 3);
 
 const formValues = ref({
     secret: '',
@@ -91,6 +95,25 @@ const handleCheckboxChange = () => {
     }
 }
 
+const generateGetAllCommitsUrl = () => {
+    const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
+    return `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
+}
+
+function generateFormattedDate(baseDate, hours, minutes) {
+    const baseDateTime = new Date(baseDate);
+    const resultDate = new Date(baseDateTime);
+    resultDate.setHours(hours, minutes, 0, 0);
+    const indiaOffsetMinutes = 330; // 5 hours and 30 minutes
+    resultDate.setMinutes(resultDate.getMinutes() + indiaOffsetMinutes);
+
+    return resultDate.toISOString().split('.')[0];
+}
+
+function generateDateInIndia(baseDate, hours, minutes) {
+    return generateFormattedDate(baseDate, hours, minutes);
+}
+
 /* time log form submit */
 const timelogSubmit = () => {
 
@@ -152,8 +175,8 @@ const submitMainForm = async () => {
 
         if (formValues.value.checked === false) {
             loading.value = true;
-            const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
-            let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
+
+            const queryUrl = generateGetAllCommitsUrl();
             const headers = {
                 'PRIVATE-TOKEN': formValues.value.secret
             };
@@ -177,7 +200,124 @@ const submitMainForm = async () => {
                     position: 'bottom-right'
                 });
             } else {
-                router.push('/log')
+
+                const queryUrl = generateGetAllCommitsUrl();
+                const headers = {
+                    'PRIVATE-TOKEN': formValues.value.secret
+                };
+
+                await axios.get(queryUrl, { headers })
+                    .then(response => {
+                        //console.log(response.data);
+
+                        if (response.data === null) {
+                            toast.error("Something went wrong !", {
+                                autoClose: 2000,
+                                theme: 'dark',
+                                position: 'bottom-right'
+                            });
+                        }
+
+                        length = response.data.length;
+
+                        if (length === 0) {
+                            toast.warning("No commits found !", {
+                                autoClose: 2000,
+                                theme: 'dark',
+                                position: 'bottom-right'
+                            });
+                        }
+
+                        const size = calculateSize(length);
+                        for (let index = 0; index < length; index += size) {
+                            groupedResponse.value.push(response.data.slice(index, index + size));
+                        }
+
+                        let groupedResponseLength = groupedResponse.value.length;
+                        if (groupedResponseLength === 0) {
+                            toast.error("Something went wrong !", {
+                                autoClose: 2000,
+                                theme: 'dark',
+                                position: 'bottom-right'
+                            });
+                        }
+
+                        const baseDate = formValues.value.logDate;
+                        const date915AM = generateDateInIndia(baseDate, 9, 15);
+                        const date1PM = generateDateInIndia(baseDate, 13, 0);
+                        const date130PM = generateDateInIndia(baseDate, 13, 30);
+                        const date4PM = generateDateInIndia(baseDate, 16, 0);
+                        const date630PM = generateDateInIndia(baseDate, 18, 30);
+
+                        let resultString1 = '';
+                        let resultString2 = '';
+                        let resultString3 = '';
+
+                        const headers = {
+                            'X-AUTH-USER': formValues.value.tlUsername,
+                            'X-AUTH-TOKEN': formValues.value.tlPassword
+                        };
+
+                        let apiUrl = "https://tl.techgentsia.com/api/timesheets";
+
+                        if (groupedResponseLength >= 3) {
+
+                            for (let i = 0; i < groupedResponseLength; i++) {
+                                const innerArray = groupedResponse.value[i];
+                                const resultString = innerArray.map(obj => obj.title).join('\n');
+                                if (i === 0) {
+                                    resultString1 = resultString;
+                                } else if (i === 1) {
+                                    resultString2 = resultString;
+                                } else if (i === 2) {
+                                    resultString3 = resultString;
+                                }
+                            }
+
+                            let body1 = {
+                                'begin': date915AM,
+                                'end': date1PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString1,
+                                'tags': ''
+                            }
+
+                            let body2 = {
+                                'begin': date130PM,
+                                'end': date4PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString2,
+                                'tags': ''
+                            }
+
+                            let body3 = {
+                                'begin': date4PM,
+                                'end': date630PM,
+                                'project': formValues.value.project,
+                                'activity': 2,
+                                'description': resultString3,
+                                'tags': ''
+                            }
+
+                            axios.post(apiUrl, body1, { headers });
+                            axios.post(apiUrl, body2, { headers });
+                            axios.post(apiUrl, body3, { headers });
+
+                            router.push('/log')
+                            loading.value = false;
+                        }
+
+
+                    })
+                    .catch(error => {
+                        // toast.error("Something went wrong !", {
+                        //     autoClose: 2000,
+                        //     theme: 'dark',
+                        //     position: 'bottom-right'
+                        // });
+                    });
             }
 
             loading.value = false;
