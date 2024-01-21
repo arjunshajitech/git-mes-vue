@@ -5,16 +5,18 @@ import axios from 'axios';
 import { useApiStore } from '../store/pinia';
 import Loading from './Loading.vue';
 
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
+
 const router = useRouter();
 
 const authorError = ref(false);
 const projectIdError = ref(false);
-const completeFormError = ref(false);
 const loading = ref(false);
 const displayLoggingDate = ref(false);
 const timeLogDetails = ref(true);
 const progresBarWidth = ref(0);
-const tlLoginError = ref(false);
 const projects = ref([]);
 
 const formValues = ref({
@@ -88,15 +90,17 @@ const handleCheckboxChange = () => {
     }
 }
 
-
 /* time log form submit */
 const timelogSubmit = () => {
+
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '') {
-        completeFormError.value = true;
+        toast.warning("Please provide username and password!", {
+            autoClose: 2000,
+            theme: 'dark',
+        });
     } else {
         loading.value = true;
-        completeFormError.value = false;
         const headers = {
             'X-AUTH-USER': formValues.value.tlUsername,
             'X-AUTH-TOKEN': formValues.value.tlPassword
@@ -105,17 +109,21 @@ const timelogSubmit = () => {
         let url = "https://tl.techgentsia.com/api/projects";
         axios.get(url, { headers })
             .then(response => {
-                tlLoginError.value = false;
                 timeLogDetails.value = false;
                 progresBarWidth.value = 100;
                 loading.value = false;
                 projects.value = response.data;
+                toast.success("Login success!", {
+                    autoClose: 2000,
+                    theme: 'dark',
+                });
             })
             .catch(error => {
-                if (error.response.status === 403) {
-                    tlLoginError.value = true;
-                }
                 loading.value = false;
+                toast.error("Incorrect username or password!", {
+                    autoClose: 2000,
+                    theme: 'dark',
+                });
             });
     }
 }
@@ -125,9 +133,11 @@ const submitMainForm = async () => {
 
     if (formValues.value.secret === '' || formValues.value.author === '' || formValues.value.branch == '' ||
         formValues.value.projectId == '' || formValues.value.since == '') {
-        completeFormError.value = true;
+        toast.warning("Please fill the fields!", {
+            autoClose: 2000,
+            theme: 'dark',
+        });
     } else {
-        completeFormError.value = false;
         loading.value = true;
         formValues.value.until = await generateNextDayDate(formValues.value.since)
         savetoLocalStorage('gitLabAuthor', formValues.value.author);
@@ -175,12 +185,6 @@ const submitMainForm = async () => {
         </div>
 
         <div v-if="timeLogDetails" class="time-logging-contaier">
-            <div v-if="completeFormError">
-                <p class="input-error-text-complete">Please fill the complete fields !</p>
-            </div>
-            <div v-if="tlLoginError">
-                <p class="input-error-text-complete">Invalid username or password!</p>
-            </div>
             <input v-model="formValues.tlUsername" placeholder="TimeLogging username" class="input-data" type="text">
             <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="password">
             <button @click="timelogSubmit" class="timelog-submit-button">Verify</button>
@@ -188,9 +192,6 @@ const submitMainForm = async () => {
 
         <div v-else class="input-form">
 
-            <div v-if="completeFormError">
-                <p class="input-error-text-complete">Please fill the complete fields !</p>
-            </div>
             <p v-if="projectIdError" class="input-error-text">Please provide a valid projectId !</p>
             <p v-if="authorError" class="input-error-text">Please provide a valid author name !</p>
 
