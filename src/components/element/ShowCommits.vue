@@ -3,8 +3,15 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Clipboard from 'clipboard'
 import { useApiStore } from '../store/pinia';
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const router = useRouter();
+
+toast.info("commits!", {
+    autoClose: 2000,
+    theme: 'dark',
+});
 
 const apiResponse = computed(() => useApiStore().getApiResponseData());
 const groupedResponse = ref([]);

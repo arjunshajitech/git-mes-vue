@@ -164,7 +164,6 @@ const submitMainForm = async () => {
 
             loading.value = false;
             router.push('/commits')
-
         }
     }
 
