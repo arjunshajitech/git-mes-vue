@@ -45,7 +45,7 @@ span {
 }
 
 .header-mini-text {
-    text-align: center;
+    margin-left: 14px;
     color: rgb(248, 105, 38);
     font-size: 13px;
     color: #fff;
