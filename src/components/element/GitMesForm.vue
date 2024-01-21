@@ -459,7 +459,7 @@ const submitMainForm = async () => {
                 </div>
             </div>
             <div class="form-submit-container">
-                <button @click="submitMainForm" class="form-submit-button">Get commit messages</button>
+                <button @click="submitMainForm" class="form-submit-button">Submit</button>
             </div>
         </div>
 
