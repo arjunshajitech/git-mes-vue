@@ -7,20 +7,20 @@ import { useApiStore } from '../store/pinia';
 const router = useRouter();
 
 const apiResponse = computed(() => useApiStore().getApiResponseData());
-const groupedResponse = [];
+const groupedResponse = ref([]);
 const copyValue = ref('Copy commit');
 const emptyCommitMessage = ref(false);
 let length = 0;
 
 const calculateSize = (length) => Math.ceil(length / 3);
 
-//console.log(apiResponse.value);
 if (apiResponse.value != null) {
+    emptyCommitMessage.value = false;
     length = apiResponse.value.length;
     const size = calculateSize(length);
 
     for (let index = 0; index < length; index += size) {
-        groupedResponse.push(apiResponse.value.slice(index, index + size));
+        groupedResponse.value.push(apiResponse.value.slice(index, index + size));
     }
 } else {
     emptyCommitMessage.value = true;

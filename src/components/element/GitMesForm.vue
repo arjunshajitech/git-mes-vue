@@ -46,14 +46,6 @@ function watchAndValidate(valueGetter, validationFn, errorRef) {
 watchAndValidate(() => formValues.value.author, isAlphaString, authorError);
 watchAndValidate(() => formValues.value.projectId, isNumericString, projectIdError);
 
-function isAnyValueEmpty(formData) {
-    for (const key in formData.value) {
-        if (formData.value[key] === '' || formData.value[key] === undefined) {
-            return true;
-        }
-    }
-    return false;
-}
 
 const formatDate = (date) => {
     const year = date.getFullYear();
@@ -78,7 +70,7 @@ const savetoLocalStorage = (key, value) => {
     localStorage.setItem(key, value);
 }
 
-const generateNextDayDate = (date) => {
+const generateNextDayDate = async (date) => {
     const currentDate = new Date(date);
     const nextDay = new Date(date);
     nextDay.setDate(currentDate.getDate() + 1);
@@ -94,38 +86,6 @@ const handleCheckboxChange = () => {
         displayLoggingDate.value = false;
         formValues.value.checked = false;
     }
-}
-
-const gitCommits = async () => {
-
-    formValues.value.until = generateNextDayDate(formValues.value.since)
-
-    // if (isAnyValueEmpty(formValues)) {
-    //     completeFormError.value = true
-    // } else {
-    savetoLocalStorage('gitLabAuthor', formValues.value.author);
-    savetoLocalStorage('gitLabBranch', formValues.value.branch);
-    savetoLocalStorage('gitLabProjectId', formValues.value.projectId);
-    savetoLocalStorage('tlUsername', formValues.value.tlUsername);
-    savetoLocalStorage('tlPassword', formValues.value.tlPassword);
-    loading.value = true;
-    try {
-        const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
-        let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
-        const response = await axios.get(queryUrl, {
-            headers: {
-                'PRIVATE-TOKEN': `${formValues.value.secret}`,
-            },
-        });
-
-        useApiStore().setApiResponseData(response.data);
-    } catch (error) {
-        useApiStore().setApiResponseData([]);
-    }
-    loading.value = false;
-    //router.push('/commits')
-    //}
-
 }
 
 
@@ -163,34 +123,39 @@ const timelogSubmit = () => {
 /* main form submittion */
 const submitMainForm = async () => {
 
-    loading.value = true;
-    formValues.value.until = generateNextDayDate(formValues.value.since)
-    savetoLocalStorage('gitLabAuthor', formValues.value.author);
-    savetoLocalStorage('gitLabBranch', formValues.value.branch);
-    savetoLocalStorage('gitLabProjectId', formValues.value.projectId);
-    savetoLocalStorage('tlUsername', formValues.value.tlUsername);
-    savetoLocalStorage('tlPassword', formValues.value.tlPassword);
+    if (formValues.value.secret === '' || formValues.value.author === '' || formValues.value.branch == '' ||
+        formValues.value.projectId == '' || formValues.value.since == '') {
+        completeFormError.value = true;
+    } else {
+        completeFormError.value = false;
+        loading.value = true;
+        formValues.value.until = await generateNextDayDate(formValues.value.since)
+        savetoLocalStorage('gitLabAuthor', formValues.value.author);
+        savetoLocalStorage('gitLabBranch', formValues.value.branch);
+        savetoLocalStorage('gitLabProjectId', formValues.value.projectId);
+        savetoLocalStorage('tlUsername', formValues.value.tlUsername);
+        savetoLocalStorage('tlPassword', formValues.value.tlPassword);
 
-    if (!formValues.value.checked) {
+        if (!formValues.value.checked) {
 
-        const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
-        let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
-        const headers = {
-            'PRIVATE-TOKEN': formValues.value.secret
-        };
+            const queryParam = `?author=${formValues.value.author}&ref_name=${formValues.value.branch}&since=${formValues.value.since}&until=${formValues.value.until}`
+            let queryUrl = `https://gitlab.techgentsia.com/api/v4/projects/${formValues.value.projectId}/repository/commits` + queryParam;
+            const headers = {
+                'PRIVATE-TOKEN': formValues.value.secret
+            };
 
-        axios.get(queryUrl, { headers })
-            .then(response => {
-                //console.log(response.data);
-                useApiStore().setApiResponseData(response.data);
-            })
-            .catch(error => {
-                useApiStore().setApiResponseData([]);
-            });
+            await axios.get(queryUrl, { headers })
+                .then(response => {
+                    useApiStore().setApiResponseData(response.data);
+                })
+                .catch(error => {
+                    useApiStore().setApiResponseData([]);
+                });
 
-        loading.value = false;
-        router.push('/commits')
+            loading.value = false;
+            router.push('/commits')
 
+        }
     }
 
 }
@@ -205,8 +170,8 @@ const submitMainForm = async () => {
             <div class="progress">
                 <div :style="{ width: progresBarWidth + '%' }" class="progress-data"></div>
             </div>
-            <div class="progress-bar-left-text">timelog details</div>
-            <div class="progress-bar-right-text">commit details</div>
+            <div class="progress-bar-left-text">timelog login</div>
+            <div class="progress-bar-right-text">gitlab details</div>
         </div>
 
         <div v-if="timeLogDetails" class="time-logging-contaier">
