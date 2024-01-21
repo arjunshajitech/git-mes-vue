@@ -12,6 +12,9 @@ const projectIdError = ref(false);
 const completeFormError = ref(false);
 const loading = ref(false);
 const displayLoggingDate = ref(false);
+const timeLogDetails = ref(true);
+const progresBarWidth = ref(0);
+const tlLoginError = ref(false);
 
 const formValues = ref({
     secret: '',
@@ -81,6 +84,7 @@ const generateNextDayDate = (date) => {
     return nextDay.toISOString().split('T')[0];
 }
 
+
 const handleCheckboxChange = () => {
     if (displayLoggingDate.value === false) {
         displayLoggingDate.value = true;
@@ -120,13 +124,68 @@ const gitCommits = async () => {
     }
     router.push('/commits')
     //}
+
+}
+
+
+/* time log form */
+const timelogSubmit = () => {
+    if (formValues.value.tlUsername === '' ||
+        formValues.value.tlPassword === '') {
+        completeFormError.value = true;
+    } else {
+        loading.value = true;
+        completeFormError.value = false;
+        const headers = {
+            'X-AUTH-USER': formValues.value.tlUsername,
+            'X-AUTH-TOKEN': formValues.value.tlPassword
+        };
+
+        let url = "https://tl.techgentsia.com/api/projects";
+        axios.get(url, { headers })
+            .then(response => {
+                console.log(response.data);
+                tlLoginError.value = false;
+                timeLogDetails.value = false;
+                progresBarWidth.value = 100;
+                loading.value = false;
+            })
+            .catch(error => {
+                if (error.response.status === 403) {
+                    tlLoginError.value = true;
+                }
+                loading.value = false;
+            });
+    }
 }
 
 </script>
 
 <template>
     <div class="form-container">
-        <form class="input-form">
+
+
+        <div class="progress-bar">
+            <div class="progress">
+                <div :style="{ width: progresBarWidth + '%' }" class="progress-data"></div>
+            </div>
+            <div class="progress-bar-left-text">timelog details</div>
+            <div class="progress-bar-right-text">commit details</div>
+        </div>
+
+        <div v-if="timeLogDetails" class="time-logging-contaier">
+            <div v-if="completeFormError">
+                <p class="input-error-text-complete">Please fill the complete fields !</p>
+            </div>
+            <div v-if="tlLoginError">
+                <p class="input-error-text-complete">Invalid username or password!</p>
+            </div>
+            <input v-model="formValues.tlUsername" placeholder="TimeLogging username" class="input-data" type="text">
+            <input v-model="formValues.tlPassword" placeholder="TimeLoggin password" class="input-data" type="text">
+            <button @click="timelogSubmit" class="timelog-submit-button">Get commit messages</button>
+        </div>
+
+        <form v-else class="input-form">
             <div v-if="completeFormError">
                 <p class="input-error-text-complete">Please fill the complete fields !</p>
             </div>
@@ -155,9 +214,21 @@ const gitCommits = async () => {
             <div v-if="displayLoggingDate" class="date-container">
                 <label class="date-label" for="">Logging Date</label>
                 <input v-model="formValues.logDate" class="input-data date-input" type="date">
+
+                <div class="select-project-container">
+                    <label class="select-text" for="mySelect">Choose project :</label>
+                    <select class="select-button" id="mySelect" name="mySelect">
+                        <option value="option1">Option 1</option>
+                        <option value="option2">Option 2</option>
+                        <option value="option3">Option 3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-submit-container">
+                <button @click="gitCommits" class="form-submit-button">Get commit messages</button>
             </div>
         </form>
-        <button @click="gitCommits" class="form-submit-button">Get commit messages</button>
+
     </div>
     <div v-if="loading">
         <Loading />
@@ -167,6 +238,69 @@ const gitCommits = async () => {
 <style scoped>
 * {
     color: #fff;
+}
+
+.select-project-container {
+    display: flex;
+    margin-bottom: 20px;
+    justify-content: space-between;
+    margin-left: 25px;
+    align-items: center;
+}
+
+.select-button {
+    padding: 2px;
+    border-radius: 4px;
+    width: 150px;
+    cursor: pointer;
+    border: 2px solid rgb(248, 105, 38);
+}
+
+.select-text {
+    font-size: 13px;
+}
+
+.progress-bar {
+    margin-top: 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.time-logging-contaier {
+    margin-top: 40px;
+    width: 400px;
+    text-align: center;
+}
+
+.progress {
+    width: 400px;
+    margin-left: 19px;
+    height: 6px;
+    border-radius: 1px;
+    border: 1px solid #fff;
+}
+
+.progress-data {
+    background-color:  rgb(248, 105, 38);
+    transition: 1.5s;
+    height: 6px;
+}
+
+.progress-bar-left-text {
+    margin-left: 19px;
+    font-size: 10px;
+    left: 0;
+    top: 15px;
+    position: absolute;
+}
+
+.progress-bar-right-text {
+    font-size: 10px;
+    right: 0;
+    top: 15px;
+    position: absolute;
 }
 
 label {
@@ -235,12 +369,17 @@ label {
     row-gap: 20px;
 }
 
+.form-submit-container {
+    width: 400px;
+    text-align: center;
+}
+
 .form-text {
     font-size: 20px;
 }
 
 .input-form {
-    margin-top: 130px;
+    margin-top: 40px;
     width: 400px;
 }
 
@@ -270,8 +409,9 @@ label {
     outline: none;
 }
 
-.form-submit-button {
-    width: 300px;
+.form-submit-button,
+.timelog-submit-button {
+    width: 200px;
     height: 40px;
     border-color: rgb(248, 105, 38);
     border-radius: 6px;
@@ -279,7 +419,8 @@ label {
     color: grey;
 }
 
-.form-submit-button:hover {
+.form-submit-button:hover,
+.timelog-submit-button:hover {
     border-color: #fff;
     color: #fff;
 }
