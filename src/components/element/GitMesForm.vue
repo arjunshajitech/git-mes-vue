@@ -4,9 +4,12 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useApiStore } from '../store/pinia';
 import Loading from './Loading.vue';
+import { getValueWithExpiry, setValueWithExpiry } from '../functions/utils'
 
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { success, failure, info, warning } from '../functions/toast';
+import constant from '../constants/constant'
+
+//  localStorage.clear();
 
 
 const router = useRouter();
@@ -20,6 +23,19 @@ const progresBarWidth = ref(0);
 const projects = ref([]);
 const groupedResponse = ref([]);
 let length = 0;
+
+
+projects.value = getValueWithExpiry(constant.LOCAL_STORAGE_PROJECT_LIST_KEY);
+if (projects.value != null) {
+    if (projects.value.length != 0) {
+        progresBarWidth.value = 100;
+        timeLogDetails.value = false;
+    } else {
+        progresBarWidth.value = 0;
+        timeLogDetails.value = true;
+    }
+}
+
 
 const calculateSize = (length) => Math.ceil(length / 3);
 
@@ -119,38 +135,26 @@ const timelogSubmit = () => {
 
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '') {
-        toast.warning("Please fill the fields  !", {
-            autoClose: 2000,
-            theme: 'dark',
-            position: 'bottom-right'
-        });
+        warning(constant.TL_FORM_INCOMPLETE)
     } else {
         loading.value = true;
         const headers = {
             'X-AUTH-USER': formValues.value.tlUsername,
             'X-AUTH-TOKEN': formValues.value.tlPassword
         };
-
-        let url = "https://tl.techgentsia.com/api/projects";
-        axios.get(url, { headers })
+        
+        axios.get(constant.TL_GET_ALL_PROJECTS_URL, { headers })
             .then(response => {
                 timeLogDetails.value = false;
                 progresBarWidth.value = 100;
                 loading.value = false;
                 projects.value = response.data;
-                toast.success("Login success !", {
-                    autoClose: 2000,
-                    theme: 'dark',
-                    position: 'bottom-right'
-                });
+                setValueWithExpiry(constant.LOCAL_STORAGE_PROJECT_LIST_KEY, response.data, constant.PROJECT_LIST_EXPIRY_TIME);
+                success(constant.TL_FORM_LOGIN_SUCCESS);
             })
             .catch(error => {
                 loading.value = false;
-                toast.error("Incorrect username or password !", {
-                    autoClose: 2000,
-                    theme: 'dark',
-                    position: 'bottom-right'
-                });
+                failure(constant.TL_FORM_LOGIN_FAILURE);
             });
     }
 }
@@ -160,11 +164,7 @@ const submitMainForm = async () => {
 
     if (formValues.value.secret === '' || formValues.value.author === '' || formValues.value.branch == '' ||
         formValues.value.projectId == '' || formValues.value.since == '') {
-        toast.warning("Please fill the fields !", {
-            autoClose: 2000,
-            theme: 'dark',
-            position: 'bottom-right'
-        });
+        warning(constant.MAIN_FORM_INCOMPLETE);
     } else {
         formValues.value.until = await generateNextDayDate(formValues.value.since)
         savetoLocalStorage('gitLabAuthor', formValues.value.author);
@@ -194,11 +194,7 @@ const submitMainForm = async () => {
         } else {
             loading.value = true;
             if (formValues.value.logDate === '' || formValues.value.project == '') {
-                toast.warning("Please fill the fields !", {
-                    autoClose: 2000,
-                    theme: 'dark',
-                    position: 'bottom-right'
-                });
+                warning(constant.MAIN_FORM_INCOMPLETE);
             } else {
                 const queryUrl = generateGetAllCommitsUrl();
                 const headers = {
@@ -213,11 +209,7 @@ const submitMainForm = async () => {
                         length = response.data.length;
 
                         if (length === 0) {
-                            toast.warning("No commits found !", {
-                                autoClose: 2000,
-                                theme: 'dark',
-                                position: 'bottom-right'
-                            });
+                            warning(constant.NO_COMMITS_FOUND);
                         }
 
                         const size = calculateSize(length);
@@ -379,22 +371,13 @@ const submitMainForm = async () => {
                             router.push('/log')
                             loading.value = false;
                         } else {
-                            toast.error("Something went wrong !", {
-                                autoClose: 2000,
-                                theme: 'dark',
-                                position: 'bottom-right'
-                            });
+                            error(constant.SOMTHING_WENT_WRONG);
                         }
 
 
                     })
                     .catch(error => {
-                        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3");
-                        toast.error("Something went wrong !", {
-                            autoClose: 2000,
-                            theme: 'dark',
-                            position: 'bottom-right'
-                        });
+                        error(constant.SOMTHING_WENT_WRONG);
                     });
             }
 
@@ -658,4 +641,4 @@ label {
     border-color: #fff;
     color: #fff;
 }
-</style>
+</style>../services/toast../functions/toast
