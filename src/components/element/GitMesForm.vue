@@ -21,7 +21,9 @@ const displayLoggingDate = ref(false);
 const timeLogDetails = ref(true);
 const progresBarWidth = ref(0);
 const projects = ref([]);
+const branches = ref([]);
 const groupedResponse = ref([]);
+const displaySelectBranch = ref(false);
 let length = 0;
 
 
@@ -52,6 +54,35 @@ const formValues = ref({
     project: '',
     checked: false
 });
+
+
+watch(()=> formValues.value.projectId, ()=> {
+
+    if (formValues.value.projectId >= 3) {
+        const headers = {
+            'PRIVATE-TOKEN': formValues.value.secret
+        };
+
+        let url = 
+        constant.GITLAB_BASE_URL + `/${formValues.value.projectId}/repository/branches?per_page=100`
+
+        axios.get(url, { headers })
+            .then(response => {
+                if(response.data.length != 0) {
+                    branches.value = response.data;
+                    displaySelectBranch.value = true;
+                } else {
+                    displaySelectBranch.value = false;
+                }
+            })
+            .catch(error => {
+                console.log("somthing went wrong in pi");
+                //failure(constant.INVALID_PROJECT_ID);
+            });
+
+    }
+})
+
 
 formValues.value.author = localStorage.getItem('gitLabAuthor') || '';
 formValues.value.branch = localStorage.getItem('gitLabBranch') || '';
@@ -142,7 +173,7 @@ const timelogSubmit = () => {
             'X-AUTH-USER': formValues.value.tlUsername,
             'X-AUTH-TOKEN': formValues.value.tlPassword
         };
-        
+
         axios.get(constant.TL_GET_ALL_PROJECTS_URL, { headers })
             .then(response => {
                 timeLogDetails.value = false;
@@ -414,12 +445,18 @@ const submitMainForm = async () => {
 
 
             <div class="input-field-container">
+                <input v-model="formValues.author" placeholder="Author Name" class="input-data" type="text">
                 <input v-model="formValues.secret" placeholder="Gitlab Shared Secret" class="input-data" type="password">
-                <input v-model="formValues.branch" placeholder="Project Branch Name" class="input-data" type="text">
             </div>
             <div class="input-field-container">
-                <input v-model="formValues.author" placeholder="Author Name" class="input-data" type="text">
                 <input v-model="formValues.projectId" placeholder="Project ID" class="input-data" type="text">
+                <!-- <input v-model="formValues.branch" placeholder="Project Branch Name" class="input-data" type="text"> -->
+                <div v-if="displaySelectBranch" class="select-branch-container">
+                    <select v-model="formValues.project" class="select-branch" id="mySelect" name="mySelect">
+                        <option value="">Select branch</option>
+                        <option v-for="branch in branches" :value="branch.name">{{ branch.name }}</option>
+                    </select>
+                </div>
             </div>
             <div class="date-container">
                 <label class="date-label" for="">Gitlab Commit Date</label>
@@ -471,6 +508,24 @@ const submitMainForm = async () => {
     width: 150px;
     cursor: pointer;
     border: 2px solid rgb(248, 105, 38);
+}
+
+.select-branch {
+    height:  43px;
+    border-radius: 4px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+    width: 209px;
+    cursor: pointer;
+    border: 2px solid rgb(248, 105, 38);
+}
+
+.select-branch-container {
+    display: flex;
+    /* margin-bottom: 20px; */
+    justify-content: space-between;
+    /* margin-left: 25px; */
+    align-items: center;
 }
 
 .select-text {
