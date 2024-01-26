@@ -95,7 +95,7 @@ const formatDate = (dateString) => {
             </div>
         </div>
         <div v-else>
-            <p class="empty-commit-text">Oops! No commit Messages found.</p>
+            <p class="empty-commit-text"><i>Oops! No commit Messages found.</i></p>
         </div>
     </div>
 </template>

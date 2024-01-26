@@ -212,14 +212,19 @@ const submitMainForm = async () => {
 
             await axios.get(queryUrl, { headers })
                 .then(response => {
-                    useApiStore().setApiResponseData(response.data);
+                    loading.value = false;
+                    if (response.data.length != 0) {
+                        useApiStore().setApiResponseData(response.data);
+                        router.push("/commits")
+                    } else {
+                        console.log("inside");
+                        warning(constant.NO_COMMITS_FOUND);
+                    }
                 })
                 .catch(error => {
-                    useApiStore().setApiResponseData([]);
+                    loading.value = false;
+                    warning(constant.SOMTHING_WENT_WRONG);
                 });
-
-            loading.value = false;
-            router.push('/commits')
         } else {
             loading.value = true;
             if (formValues.value.logDate === '' || formValues.value.project == '') {
