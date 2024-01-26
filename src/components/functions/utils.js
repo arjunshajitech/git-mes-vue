@@ -27,4 +27,9 @@ const setValueWithExpiry = (key, value, expiryInSeconds) => {
 };
 
 
-export { getValueWithExpiry , setValueWithExpiry };
+const saveToLocalStorage = (key,value) => {
+    localStorage.setItem(key,value);
+}
+
+
+export { getValueWithExpiry , setValueWithExpiry , saveToLocalStorage };

@@ -3,6 +3,11 @@
 
 export default {
 
+    // local storage keys 
+    SPIDERMAN : 'tl_username',
+    SUPERMAIN: 'tl_password',
+
+
     PROJECT_LIST_EXPIRY_TIME : '5', // five  days
 
 
