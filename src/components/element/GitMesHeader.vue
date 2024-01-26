@@ -22,12 +22,12 @@ const weekDay = getTodayWeekday();
 <template>
     <div class="header-container">
         <div class="gitmes-header">
-            <div class="gitmes-icon">
+            <!-- <div class="gitmes-icon">
                 <img class="logo-icon" src="/favicon.png" alt="">
-            </div>
+            </div> -->
             <div class="gitmes-text">
-                <p class="header-text">Git Mes (GM)</p>
-                <p class="header-mini-text">Welcome back ! on <span>{{ weekDay }}</span></p>
+                <p class="header-text"><i>gitmes</i></p>
+                <p class="header-mini-text"><i>Welcome back ! on <span>{{ weekDay }}</span></i></p>
             </div>
 
         </div>
@@ -47,7 +47,7 @@ span {
 .header-mini-text {
     margin-left: 14px;
     color: rgb(248, 105, 38);
-    font-size: 13px;
+    font-size: 18px;
     color: #fff;
 }
 
