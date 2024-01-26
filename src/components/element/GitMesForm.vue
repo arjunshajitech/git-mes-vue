@@ -3,7 +3,7 @@ import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useApiStore } from '../store/pinia';
-import Loading from './Loading.vue';
+import Loading from './Loading.vue'
 import { saveToLocalStorage } from '../functions/utils'
 
 import { success, failure, info, warning } from '../functions/toast';
@@ -58,34 +58,10 @@ const formValues = ref({
 
 formValues.value.tlUsername = localStorage.getItem(constant.SPIDERMAN) || '';
 formValues.value.tlPassword = localStorage.getItem(constant.SUPERMAIN) || '';
+formValues.value.projectId = localStorage.getItem(constant.BATMAIN) || '';
+formValues.value.author = localStorage.getItem(constant.CAT) || '';
+formValues.value.branch = localStorage.getItem(constant.DOG) || '';
 
-
-watch(() => formValues.value.projectId, () => {
-
-    if (formValues.value.projectId >= 3) {
-        const headers = {
-            'PRIVATE-TOKEN': formValues.value.secret
-        };
-
-        let url =
-            constant.GITLAB_BASE_URL + `/${formValues.value.projectId}/repository/branches?per_page=100`
-
-        axios.get(url, { headers })
-            .then(response => {
-                if (response.data.length != 0) {
-                    branches.value = response.data;
-                    displaySelectBranch.value = true;
-                } else {
-                    displaySelectBranch.value = false;
-                }
-            })
-            .catch(error => {
-                console.log("somthing went wrong in pi");
-                //failure(constant.INVALID_PROJECT_ID);
-            });
-
-    }
-})
 
 
 // formValues.value.author = localStorage.getItem('gitLabAuthor') || '';
@@ -169,7 +145,8 @@ const timelogSubmit = () => {
 
     if (formValues.value.tlUsername === '' ||
         formValues.value.tlPassword === '' ||
-        formValues.value.secret === '') {
+        formValues.value.secret === '' ||
+        formValues.value.projectId === '') {
         warning(constant.TL_FORM_INCOMPLETE)
     } else {
         loading.value = true;
@@ -180,18 +157,36 @@ const timelogSubmit = () => {
 
         axios.get(constant.TL_GET_ALL_PROJECTS_URL, { headers })
             .then(response => {
-                timeLogDetails.value = false;
-                progresBarWidth.value = 100;
-                loading.value = false;
                 projects.value = response.data;
-                saveToLocalStorage(constant.SPIDERMAN,formValues.value.tlUsername);
+                saveToLocalStorage(constant.SPIDERMAN, formValues.value.tlUsername);
                 saveToLocalStorage(constant.SUPERMAIN,
-                formValues.value.tlPassword);
-                success(constant.TL_FORM_LOGIN_SUCCESS);
+                    formValues.value.tlPassword);
             })
             .catch(error => {
                 loading.value = false;
                 failure(constant.TL_FORM_LOGIN_FAILURE);
+                return;
+            });
+
+        const header = {
+            'PRIVATE-TOKEN': formValues.value.secret
+        };
+
+        let url =
+            constant.GITLAB_BASE_URL + `/${formValues.value.projectId}/repository/branches?per_page=100`
+
+        axios.get(url, { headers: header })
+            .then(response => {
+                saveToLocalStorage(constant.BATMAIN,
+                    formValues.value.projectId);
+                branches.value = response.data;
+                timeLogDetails.value = false;
+                loading.value = false;
+                success(constant.TL_FORM_LOGIN_SUCCESS);
+            })
+            .catch(error => {
+                loading.value = false;
+                failure(constant.GITLAB_GET_ALL_BRANCH_ERROR);
             });
     }
 }
@@ -199,16 +194,13 @@ const timelogSubmit = () => {
 /* main form submittion */
 const submitMainForm = async () => {
 
-    if (formValues.value.secret === '' || formValues.value.author === '' || formValues.value.branch == '' ||
-        formValues.value.projectId == '' || formValues.value.since == '') {
+    if (formValues.value.author === '' || formValues.value.branch == '' ||
+        formValues.value.since == '') {
         warning(constant.MAIN_FORM_INCOMPLETE);
     } else {
         formValues.value.until = await generateNextDayDate(formValues.value.since)
-        savetoLocalStorage('gitLabAuthor', formValues.value.author);
-        savetoLocalStorage('gitLabBranch', formValues.value.branch);
-        savetoLocalStorage('gitLabProjectId', formValues.value.projectId);
-        savetoLocalStorage('tlUsername', formValues.value.tlUsername);
-        savetoLocalStorage('tlPassword', formValues.value.tlPassword);
+        savetoLocalStorage(constant.CAT, formValues.value.author);
+        savetoLocalStorage(constant.DOG, formValues.value.branch);
 
         if (formValues.value.checked === false) {
             loading.value = true;
@@ -442,6 +434,7 @@ const submitMainForm = async () => {
             <input v-model="formValues.tlUsername" placeholder="Username" class="input-data" type="text">
             <input v-model="formValues.tlPassword" placeholder="Password" class="input-data" type="password">
             <input v-model="formValues.secret" placeholder="Gitlab Shared Secret" class="input-data" type="password">
+            <input v-model="formValues.projectId" placeholder="Project ID" class="input-data" type="text">
             <!-- <button @click="timelogSubmit" class="timelog-submit-button">Continue...</button>
              -->
             <button @click="timelogSubmit" class="Btn">
@@ -462,13 +455,8 @@ const submitMainForm = async () => {
 
             <div class="input-field-container">
                 <input v-model="formValues.author" placeholder="Author Name" class="input-data" type="text">
-                <input v-model="formValues.secret" placeholder="Gitlab Shared Secret" class="input-data" type="password">
-            </div>
-            <div class="input-field-container">
-                <input v-model="formValues.projectId" placeholder="Project ID" class="input-data" type="text">
-                <!-- <input v-model="formValues.branch" placeholder="Project Branch Name" class="input-data" type="text"> -->
-                <div v-if="displaySelectBranch" class="select-branch-container">
-                    <select v-model="formValues.project" class="select-branch" id="mySelect" name="mySelect">
+                <div class="select-branch-container">
+                    <select v-model="formValues.branch" class="select-branch" id="mySelect" name="mySelect">
                         <option value="">Select branch</option>
                         <option v-for="branch in branches" :value="branch.name">{{ branch.name }}</option>
                     </select>

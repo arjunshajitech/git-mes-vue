@@ -4,8 +4,11 @@
 export default {
 
     // local storage keys 
-    SPIDERMAN : 'tl_username',
-    SUPERMAIN: 'tl_password',
+    SPIDERMAN : 'spiderman',
+    SUPERMAIN: 'superman',
+    BATMAIN: 'batman',
+    CAT: 'cat',
+    DOG: 'dog',
 
 
     PROJECT_LIST_EXPIRY_TIME : '5', // five  days
@@ -21,6 +24,10 @@ export default {
     NO_COMMITS_FOUND : 'Oops! no commits found.',
     SOMTHING_WENT_WRONG : 'Something went wrong !',
     INVALID_PROJECT_ID: 'Invalid project id !',
+
+
+    // gitlab api error
+    GITLAB_GET_ALL_BRANCH_ERROR : 'Invalid projectId or secret !',
 
 
     TL_GET_ALL_PROJECTS_URL : 'https://tl.techgentsia.com/api/projects',
