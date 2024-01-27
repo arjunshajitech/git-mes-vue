@@ -158,8 +158,8 @@ const timelogSubmit = () => {
 
         axios.get(constant.TL_GET_CURRENT_USER, { headers })
             .then(response => {
-                // username.value = response.data.alias;
-                // saveToLocalStorage(constant.TIGER,response.data.alias);
+                username.value = response.data.alias;
+                saveToLocalStorage(constant.TIGER,response.data.alias);
             }).catch(error => {
                 loading.value = false;
                 failure(constant.SOMTHING_WENT_WRONG);
@@ -252,6 +252,7 @@ const submitMainForm = async () => {
                         length = response.data.length;
 
                         if (length === 0) {
+                            loading.value = false;
                             warning(constant.NO_COMMITS_FOUND);
                             return;
                         }
@@ -262,11 +263,11 @@ const submitMainForm = async () => {
                         }
 
                         const baseDate = formValues.value.logDate;
-                        const date915AM = generateDateInIndia(baseDate, 9, 15);
+                        const date915AM = generateDateInIndia(baseDate, 9, 30);
                         const date1PM = generateDateInIndia(baseDate, 13, 0);
                         const date130PM = generateDateInIndia(baseDate, 13, 30);
                         const date4PM = generateDateInIndia(baseDate, 16, 0);
-                        const date630PM = generateDateInIndia(baseDate, 18, 30);
+                        const date630PM = generateDateInIndia(baseDate, 18, 0);
 
                         let resultString1 = '';
                         let resultString2 = '';
@@ -325,8 +326,10 @@ const submitMainForm = async () => {
                             axios.post(apiUrl, body2, { headers });
                             axios.post(apiUrl, body3, { headers });
 
-                            router.push('/log')
+                            success(constant.TL_LOGGED_SUCCESS);
                             loading.value = false;
+                            timeLogDetails.value = true;
+                            router.push('/')
                         } else if (groupedResponseLength === 2) {
 
                             for (let i = 0; i < groupedResponseLength; i++) {
@@ -370,8 +373,10 @@ const submitMainForm = async () => {
                             axios.post(apiUrl, body2, { headers });
                             axios.post(apiUrl, body3, { headers });
 
-                            router.push('/log')
+                            success(constant.TL_LOGGED_SUCCESS);
                             loading.value = false;
+                            timeLogDetails.value = true;
+                            router.push('/')
                         } else if (groupedResponseLength === 1) {
                             for (let i = 0; i < groupedResponseLength; i++) {
                                 const innerArray = groupedResponse.value[i];
@@ -412,8 +417,10 @@ const submitMainForm = async () => {
                             axios.post(apiUrl, body2, { headers });
                             axios.post(apiUrl, body3, { headers });
 
-                            router.push('/log')
+                            success(constant.TL_LOGGED_SUCCESS);
                             loading.value = false;
+                            timeLogDetails.value = true;
+                            router.push('/')
                         } else {
                             error(constant.SOMTHING_WENT_WRONG);
                         }

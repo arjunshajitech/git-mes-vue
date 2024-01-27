@@ -19,6 +19,7 @@ export default {
 
 
     TL_FORM_LOGIN_SUCCESS : 'Login success.',
+    TL_LOGGED_SUCCESS : 'Succesfully logged.',
     TL_FORM_LOGIN_FAILURE : 'Invalid username or password !',
     TL_FORM_INCOMPLETE : 'Please fill the fields !',
     MAIN_FORM_INCOMPLETE : 'Please fill the fields !',

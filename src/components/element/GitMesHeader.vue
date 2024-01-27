@@ -1,12 +1,5 @@
 <script setup>
 
-import {ref,computed} from 'vue';
-import constant from '../constants/constant'
-
-const userName = ref('');
-
-userName.value = localStorage.getItem(constant.TIGER) || '';
-
 const formatDate = (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -34,7 +27,7 @@ const weekDay = getTodayWeekday();
             </div> -->
             <div class="gitmes-text">
                 <p class="header-text"><i>gitmes</i></p>
-                <p class="header-mini-text"><i>Welcome back {{ text }} ! on <span>{{ weekDay }}</span></i></p>
+                <p class="header-mini-text"><i>Welcome back ! on <span>{{ weekDay }}</span></i></p>
             </div>
 
         </div>

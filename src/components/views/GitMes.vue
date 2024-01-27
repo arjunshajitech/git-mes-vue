@@ -5,5 +5,5 @@ import GitMesForm from '../element/GitMesForm.vue'
 
 <template>
     <GitMesHeader/>
-    <GitMesForm/>
+    <GitMesForm />
 </template>
