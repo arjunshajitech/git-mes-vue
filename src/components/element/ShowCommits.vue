@@ -16,20 +16,20 @@ let length = 0;
 
 const calculateSize = (length) => Math.ceil(length / 3);
 
-if (apiResponse.value == null || apiResponse.value.length === 0) {
-    emptyCommit.value = true;
-    toast.warning("no commits yet !", {
-        autoClose: 2000,
-        theme: 'dark',
-        position: 'bottom-right'
-    });
-} else {
-    toast.info("commits !", {
-        autoClose: 2000,
-        theme: 'dark',
-        position: 'bottom-right'
-    });
-}
+// if (apiResponse.value == null || apiResponse.value.length === 0) {
+//     emptyCommit.value = true;
+//     toast.warning("no commits yet !", {
+//         autoClose: 2000,
+//         theme: 'dark',
+//         position: 'bottom-right'
+//     });
+// } else {
+//     toast.info("commits !", {
+//         autoClose: 2000,
+//         theme: 'dark',
+//         position: 'bottom-right'
+//     });
+// }
 
 length = apiResponse.value.length;
 const size = calculateSize(length);

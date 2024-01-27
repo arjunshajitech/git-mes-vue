@@ -2,6 +2,7 @@
     import GitMesHeader from '../element/GitMesHeader.vue';
     import NotFound from '../element/NotFound.vue';
     import { useRouter } from 'vue-router';
+    import BackButton from '../element/BackButton.vue';
     
     const router = useRouter();
 
@@ -13,9 +14,7 @@
 <template>
     <GitMesHeader/>
     <NotFound/>
-    <div class="back-button-container">
-        <button @click="home" class="home-button">Back to home!</button>
-    </div>
+    <BackButton/>
 </template>
 
 <style scoped> 
