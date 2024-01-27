@@ -1,9 +1,11 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import constant from '../constants/constant'
 
 const router = useRouter();
 
 const home = () => {
+    localStorage.removeItem(constant.TIGER);
     router.push('/');
 }
 </script>

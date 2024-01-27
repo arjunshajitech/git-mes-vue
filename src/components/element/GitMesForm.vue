@@ -24,6 +24,7 @@ const projects = ref([]);
 const branches = ref([]);
 const groupedResponse = ref([]);
 const displaySelectBranch = ref(false);
+const username = ref('');
 let length = 0;
 
 
@@ -155,6 +156,16 @@ const timelogSubmit = () => {
             'X-AUTH-TOKEN': formValues.value.tlPassword
         };
 
+        axios.get(constant.TL_GET_CURRENT_USER, { headers })
+            .then(response => {
+                // username.value = response.data.alias;
+                // saveToLocalStorage(constant.TIGER,response.data.alias);
+            }).catch(error => {
+                loading.value = false;
+                failure(constant.SOMTHING_WENT_WRONG);
+                return;
+            })
+
         axios.get(constant.TL_GET_ALL_PROJECTS_URL, { headers })
             .then(response => {
                 projects.value = response.data;
@@ -187,6 +198,7 @@ const timelogSubmit = () => {
             .catch(error => {
                 loading.value = false;
                 failure(constant.GITLAB_GET_ALL_BRANCH_ERROR);
+                return;
             });
     }
 }
@@ -235,15 +247,13 @@ const submitMainForm = async () => {
                     'PRIVATE-TOKEN': formValues.value.secret
                 };
 
-                console.log(queryUrl);
                 await axios.get(queryUrl, { headers })
                     .then(response => {
-                        //console.log(response.data);
-
                         length = response.data.length;
 
                         if (length === 0) {
                             warning(constant.NO_COMMITS_FOUND);
+                            return;
                         }
 
                         const size = calculateSize(length);
@@ -472,7 +482,11 @@ const submitMainForm = async () => {
                 <input v-model="formValues.since" class="input-data date-input" type="date">
             </div>
             <div class="checkbox-container">
-                <input @change="handleCheckboxChange" type="checkbox" id="myCheckbox" name="myCheckbox">
+                <div class="checkbox-wrapper-10">
+                    <input @click="handleCheckboxChange" checked="" type="checkbox" id="cb5" class="tgl tgl-flip">
+                    <label for="cb5" data-tg-on="Yeah!" data-tg-off="Nope" class="tgl-btn"></label>
+                </div>
+                <!-- <input @change="handleCheckboxChange" type="checkbox" id="myCheckbox" name="myCheckbox"> -->
                 <p>( Please check the box if you want to log. )</p>
             </div>
             <div v-if="displayLoggingDate" class="date-container">
@@ -490,13 +504,13 @@ const submitMainForm = async () => {
             <div class="form-submit-container">
                 <!-- <button @click="submitMainForm" class="form-submit-button">Submit</button> -->
                 <button @click="submitMainForm" class="Btn">
-                <svg class="svgIcon" viewBox="0 0 496 512" height="1.4em" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                        d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z">
-                    </path>
-                </svg>
-                <span class="text"><i>LET'S G0</i></span>
-            </button>
+                    <svg class="svgIcon" viewBox="0 0 496 512" height="1.4em" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z">
+                        </path>
+                    </svg>
+                    <span class="text"><i>LET'S G0</i></span>
+                </button>
             </div>
         </div>
 
@@ -509,6 +523,125 @@ const submitMainForm = async () => {
 <style scoped>
 * {
     color: #fff;
+}
+
+.checkbox-wrapper-10 .tgl {
+    display: none;
+}
+
+.checkbox-wrapper-10 .tgl,
+.checkbox-wrapper-10 .tgl:after,
+.checkbox-wrapper-10 .tgl:before,
+.checkbox-wrapper-10 .tgl *,
+.checkbox-wrapper-10 .tgl *:after,
+.checkbox-wrapper-10 .tgl *:before,
+.checkbox-wrapper-10 .tgl+.tgl-btn {
+    box-sizing: border-box;
+}
+
+.checkbox-wrapper-10 .tgl::-moz-selection,
+.checkbox-wrapper-10 .tgl:after::-moz-selection,
+.checkbox-wrapper-10 .tgl:before::-moz-selection,
+.checkbox-wrapper-10 .tgl *::-moz-selection,
+.checkbox-wrapper-10 .tgl *:after::-moz-selection,
+.checkbox-wrapper-10 .tgl *:before::-moz-selection,
+.checkbox-wrapper-10 .tgl+.tgl-btn::-moz-selection,
+.checkbox-wrapper-10 .tgl::selection,
+.checkbox-wrapper-10 .tgl:after::selection,
+.checkbox-wrapper-10 .tgl:before::selection,
+.checkbox-wrapper-10 .tgl *::selection,
+.checkbox-wrapper-10 .tgl *:after::selection,
+.checkbox-wrapper-10 .tgl *:before::selection,
+.checkbox-wrapper-10 .tgl+.tgl-btn::selection {
+    background: none;
+}
+
+.checkbox-wrapper-10 .tgl+.tgl-btn {
+    outline: 0;
+    display: block;
+    width: 4em;
+    height: 2em;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.checkbox-wrapper-10 .tgl+.tgl-btn:after,
+.checkbox-wrapper-10 .tgl+.tgl-btn:before {
+    position: relative;
+    display: block;
+    content: "";
+    width: 50%;
+    height: 100%;
+}
+
+.checkbox-wrapper-10 .tgl+.tgl-btn:after {
+    left: 0;
+}
+
+.checkbox-wrapper-10 .tgl+.tgl-btn:before {
+    display: none;
+}
+
+.checkbox-wrapper-10 .tgl:checked+.tgl-btn:after {
+    left: 50%;
+}
+
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn {
+    padding: 2px;
+    transition: all 0.2s ease;
+    font-family: sans-serif;
+    perspective: 100px;
+}
+
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn:after,
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn:before {
+    display: inline-block;
+    transition: all 0.4s ease;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    line-height: 2em;
+    font-weight: bold;
+    color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 4px;
+}
+
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn:after {
+    content: attr(data-tg-on);
+    background: #02C66F;
+    transform: rotateY(-180deg);
+}
+
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn:before {
+    background: #FF3A19;
+    content: attr(data-tg-off);
+}
+
+.checkbox-wrapper-10 .tgl-flip+.tgl-btn:active:before {
+    transform: rotateY(-20deg);
+}
+
+.checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:before {
+    transform: rotateY(180deg);
+}
+
+.checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:after {
+    transform: rotateY(0);
+    left: 0;
+    background: #02C66F;
+}
+
+.checkbox-wrapper-10 .tgl-flip:checked+.tgl-btn:active:after {
+    transform: rotateY(20deg);
 }
 
 .Btn {
@@ -559,17 +692,20 @@ const submitMainForm = async () => {
 }
 
 .select-project-container {
+    width: 425px;
     display: flex;
     margin-bottom: 20px;
     justify-content: space-between;
-    margin-left: 25px;
     align-items: center;
 }
 
 .select-button {
-    padding: 2px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
     border-radius: 4px;
-    width: 150px;
+    width: 250px;
+    margin-left: 40px;
     cursor: pointer;
     border: 2px solid rgb(248, 105, 38);
 }
@@ -593,6 +729,7 @@ const submitMainForm = async () => {
 }
 
 .select-text {
+    padding-left: 5px;
     font-size: 13px;
 }
 

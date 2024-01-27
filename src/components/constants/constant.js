@@ -9,6 +9,7 @@ export default {
     BATMAIN: 'batman',
     CAT: 'cat',
     DOG: 'dog',
+    TIGER: 'tiger',
 
 
     PROJECT_LIST_EXPIRY_TIME : '5', // five  days
@@ -31,5 +32,6 @@ export default {
 
 
     TL_GET_ALL_PROJECTS_URL : 'https://tl.techgentsia.com/api/projects',
+    TL_GET_CURRENT_USER : 'https://tl.techgentsia.com/api/users/me',
     GITLAB_BASE_URL : 'https://gitlab.techgentsia.com/api/v4/projects'
 };
