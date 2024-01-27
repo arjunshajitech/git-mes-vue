@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useApiStore } from '../store/pinia';
@@ -13,6 +13,7 @@ import constant from '../constants/constant'
 
 
 const router = useRouter();
+const emits = defineEmits(["header-text"]);
 
 const authorError = ref(false);
 const projectIdError = ref(false);
@@ -28,16 +29,9 @@ const username = ref('');
 let length = 0;
 
 
-// projects.value = getValueWithExpiry(constant.LOCAL_STORAGE_PROJECT_LIST_KEY);
-// if (projects.value != null) {
-//     if (projects.value.length != 0) {
-//         progresBarWidth.value = 100;
-//         timeLogDetails.value = false;
-//     } else {
-//         progresBarWidth.value = 0;
-//         timeLogDetails.value = true;
-//     }
-// }
+if(timeLogDetails.value === true) {
+    localStorage.removeItem(constant.TIGER);
+}
 
 
 const calculateSize = (length) => Math.ceil(length / 3);
@@ -159,10 +153,11 @@ const timelogSubmit = () => {
         axios.get(constant.TL_GET_CURRENT_USER, { headers })
             .then(response => {
                 username.value = response.data.alias;
-                saveToLocalStorage(constant.TIGER,response.data.alias);
+                emits('header-text', response.data.alias);
+                localStorage.setItem(constant.TIGER,response.data.alias);
             }).catch(error => {
                 loading.value = false;
-                failure(constant.SOMTHING_WENT_WRONG);
+                failure(constant.TL_FORM_LOGIN_FAILURE);
                 return;
             })
 
@@ -229,7 +224,6 @@ const submitMainForm = async () => {
                         useApiStore().setApiResponseData(response.data);
                         router.push("/commits")
                     } else {
-                        console.log("inside");
                         warning(constant.NO_COMMITS_FOUND);
                     }
                 })
