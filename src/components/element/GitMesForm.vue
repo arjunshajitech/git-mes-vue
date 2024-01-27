@@ -494,7 +494,7 @@ const submitMainForm = async () => {
                     <label for="cb5" data-tg-on="Yeah!" data-tg-off="Nope" class="tgl-btn"></label>
                 </div>
                 <!-- <input @change="handleCheckboxChange" type="checkbox" id="myCheckbox" name="myCheckbox"> -->
-                <p>( Please check the box if you want to log. )</p>
+                <p>( Please click the box if you want to log. )</p>
             </div>
             <div v-if="displayLoggingDate" class="date-container">
                 <label class="date-label" for="">Logging Date</label>
